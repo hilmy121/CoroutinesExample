@@ -22,20 +22,19 @@ class MainViewModel : ViewModel(){
         GlobalScope.launch(Dispatchers.IO) {
 //            responseList.postValue(getResponse())
             RESTApiObject().RESTApiService.getMemes().enqueue(object : Callback<ImgFlipResponse>{
-                override fun onResponse(
-                    call: Call<ImgFlipResponse>,
-                    response: Response<ImgFlipResponse>
-                ) {
-                    response.body().let {
-                        if (it != null) {
-                            Log.i("Your data is processed in", Thread.currentThread().name)
-                            responseList.postValue(it)
+                override fun onResponse(call: Call<ImgFlipResponse>, response: Response<ImgFlipResponse>) {
+                    GlobalScope.launch(Dispatchers.IO) {
+                        response.body().let { body ->
+                            if (body != null) {
+                                Log.i("Your data is processed in", Thread.currentThread().name)
+                                responseList.postValue(body)
+                            }
                         }
                     }
                 }
 
                 override fun onFailure(call: Call<ImgFlipResponse>, t: Throwable) {
-                    TODO("Not yet implemented")
+
                 }
 
             })

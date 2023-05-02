@@ -32,7 +32,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        testCoroutines()
+//        testCoroutines()
         getResponseList()
     }
     private fun getResponseList(){
@@ -52,30 +52,6 @@ class MainActivity : AppCompatActivity() {
             }
         })
     }
-    private fun getCoroutinesList(){
-        GlobalScope.launch(Dispatchers.IO) {
-            RESTApiObject().RESTApiService.getMemes().enqueue(object : Callback<ImgFlipResponse> {
-                override fun onResponse(call: Call<ImgFlipResponse>, response: Response<ImgFlipResponse>) {
-                    response.body().let {
-                        if (it != null) {
-                            Log.i("Your data is processed in", Thread.currentThread().name)
-                            val dataList = it.data?.memes
-                            dataList?.let { memeList ->
-                                Log.i("Your data is displayed in", Thread.currentThread().name)
-                                mainAdapter.setList(memeList)
-                                mainAdapter.notifyDataSetChanged()
-                            }
-                        }
-                    }
-                }
-
-                override fun onFailure(call: Call<ImgFlipResponse>, t: Throwable) {
-                    TODO("Not yet implemented")
-                }
-
-            })
-        }
-    }
     private fun setupUI(){
         mainViewBinding.rvMain.setHasFixedSize(true)
         mainViewBinding.rvMain.layoutManager = LinearLayoutManager(this)
@@ -90,8 +66,7 @@ class MainActivity : AppCompatActivity() {
         RESTApiObject().RESTApiService.getMemes().enqueue(object: Callback<ImgFlipResponse>{
             override fun onResponse(call: Call<ImgFlipResponse>, response: Response<ImgFlipResponse>) {
                 GlobalScope.launch(Dispatchers.IO){
-                    response.body().let {
-                            body ->
+                    response.body().let { body ->
                         if (body != null) {
                             Log.i("Data is requested in : ",Thread.currentThread().name)
                         }
