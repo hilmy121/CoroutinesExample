@@ -1,5 +1,6 @@
 package com.example.coroutinesexample.ViewModel
 
+import android.os.Parcelable
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -8,11 +9,13 @@ import com.example.coroutinesexample.API.DataModel.ImgFlipResponse
 import com.example.coroutinesexample.API.RESTApiObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import kotlin.coroutines.CoroutineContext
 
 class MainViewModel : ViewModel(){
 
@@ -23,6 +26,16 @@ class MainViewModel : ViewModel(){
 //            responseList.postValue(getResponse())
             RESTApiObject().RESTApiService.getMemes().enqueue(object : Callback<ImgFlipResponse>{
                 override fun onResponse(call: Call<ImgFlipResponse>, response: Response<ImgFlipResponse>) {
+
+                    response.body().let { responseBody ->
+                        if (responseBody != null) {
+                            runBlocking {
+                                getImgFlipJob(responseBody,responseList).join()
+                            }
+                        }
+                    }
+
+
                     GlobalScope.launch(Dispatchers.IO) {
                         response.body().let { body ->
                             if (body != null) {
@@ -46,29 +59,16 @@ class MainViewModel : ViewModel(){
 
 
     //Coroutines
-    private suspend fun getResponse():ImgFlipResponse{
-        var responseFlip : ImgFlipResponse? = null
-        RESTApiObject().RESTApiService.getMemes().enqueue(object : Callback<ImgFlipResponse>{
-            override fun onResponse(
-                call: Call<ImgFlipResponse>,
-                response: Response<ImgFlipResponse>
-            ) {
-                response.body().let {
-                    if (it != null) {
-                        Log.i("Your data is processed in", Thread.currentThread().name)
-                        responseFlip = it
-                    }
-                }
+    private fun getImgFlipJob(
+        response: ImgFlipResponse,
+        responseMutableLiveData: MutableLiveData<ImgFlipResponse>
+    ):Job{
+        return GlobalScope.launch(Dispatchers.IO) {
+            response.let {
+                Log.i("Your data is processed in", Thread.currentThread().name)
+                responseMutableLiveData.postValue(response)
             }
-
-            override fun onFailure(call: Call<ImgFlipResponse>, t: Throwable) {
-                TODO("Not yet implemented")
-            }
-
-        })
-
-        return responseFlip!!
-
+        }
     }
 
 }
