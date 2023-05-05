@@ -11,9 +11,7 @@ import com.example.coroutinesexample.API.RESTApiObject
 import com.example.coroutinesexample.ViewModel.Adapter.MainAdapter
 import com.example.coroutinesexample.ViewModel.MainViewModel
 import com.example.coroutinesexample.databinding.ActivityMainBinding
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -28,6 +26,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(mainViewBinding.root)
         mainViewModel = ViewModelProvider(this)[MainViewModel::class.java]
         setupUI()
+//        runBlockingTest()
     }
 
     override fun onStart() {
@@ -58,28 +57,21 @@ class MainActivity : AppCompatActivity() {
         mainViewBinding.rvMain.adapter = mainAdapter
 
     }
-    private fun testCoroutines(){
-        GlobalScope.launch(Dispatchers.IO) {
-            Log.i("Processed in : ",Thread.currentThread().name)
 
+
+    private fun runBlockingTest(){
+        Log.i("Before Running runBlocking",Thread.currentThread().name)
+        runBlocking {
+            Log.i("Start Running runBlocking",Thread.currentThread().name)
+            GlobalScope.launch(Dispatchers.IO) {
+                Log.i("Start Running globalScope",Thread.currentThread().name)
+                delay(2000)
+                Log.i("End Running globalScope",Thread.currentThread().name)
+            }
+            delay(2000)
+            Log.i("End Running runBlocking",Thread.currentThread().name)
         }
-        RESTApiObject().RESTApiService.getMemes().enqueue(object: Callback<ImgFlipResponse>{
-            override fun onResponse(call: Call<ImgFlipResponse>, response: Response<ImgFlipResponse>) {
-                GlobalScope.launch(Dispatchers.IO){
-                    response.body().let { body ->
-                        if (body != null) {
-                            Log.i("Data is requested in : ",Thread.currentThread().name)
-                        }
-                    }
-                }
+        Log.i("After Running runBlocking",Thread.currentThread().name)
 
-            }
-
-            override fun onFailure(call: Call<ImgFlipResponse>, t: Throwable) {
-                TODO("Not yet implemented")
-            }
-
-        })
-        Log.i("Now Processed in : ",Thread.currentThread().name)
     }
 }

@@ -7,12 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.coroutinesexample.API.DataModel.ImgFlipResponse
 import com.example.coroutinesexample.API.RESTApiObject
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.job
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -23,27 +18,20 @@ class MainViewModel : ViewModel(){
 
     internal fun getMemes():LiveData<ImgFlipResponse>{
         GlobalScope.launch(Dispatchers.IO) {
-//            responseList.postValue(getResponse())
+            Log.i("Running in ->", Thread.currentThread().name)
             RESTApiObject().RESTApiService.getMemes().enqueue(object : Callback<ImgFlipResponse>{
                 override fun onResponse(call: Call<ImgFlipResponse>, response: Response<ImgFlipResponse>) {
-
-                    response.body().let { responseBody ->
-                        if (responseBody != null) {
-                            runBlocking {
-                                getImgFlipJob(responseBody,responseList).join()
+                    response.body().let { body ->
+                        if (body != null) {
+                            GlobalScope.launch {
+                                val value = async { body }
+                                Log.i("Your data is processed in ->", Thread.currentThread().name)
+                                responseList.postValue(value.await())
                             }
                         }
                     }
 
 
-                    GlobalScope.launch(Dispatchers.IO) {
-                        response.body().let { body ->
-                            if (body != null) {
-                                Log.i("Your data is processed in", Thread.currentThread().name)
-                                responseList.postValue(body)
-                            }
-                        }
-                    }
                 }
 
                 override fun onFailure(call: Call<ImgFlipResponse>, t: Throwable) {
@@ -58,17 +46,8 @@ class MainViewModel : ViewModel(){
 
 
 
-    //Coroutines
-    private fun getImgFlipJob(
-        response: ImgFlipResponse,
-        responseMutableLiveData: MutableLiveData<ImgFlipResponse>
-    ):Job{
-        return GlobalScope.launch(Dispatchers.IO) {
-            response.let {
-                Log.i("Your data is processed in", Thread.currentThread().name)
-                responseMutableLiveData.postValue(response)
-            }
-        }
-    }
+
+
+
 
 }
