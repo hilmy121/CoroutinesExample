@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.coroutinesexample.API.DataModel.ImgFlipResponse
 import com.example.coroutinesexample.API.RESTApiObject
@@ -35,10 +36,10 @@ class MainActivity : AppCompatActivity() {
         getResponseList()
     }
     private fun getResponseList(){
-        mainViewModel.getMemes().observe(this, Observer {
+        mainViewModel.getMemesAwait().observe(this, Observer{
             it.let {
                 if (it != null) {
-                    GlobalScope.launch(Dispatchers.Main){
+                    lifecycleScope.launch(Dispatchers.Main){
                         Log.i("Activity processing data in ->", Thread.currentThread().name)
                         val dataList = it.data?.memes
                         dataList?.let { memeList ->
@@ -46,7 +47,6 @@ class MainActivity : AppCompatActivity() {
                             mainAdapter.notifyDataSetChanged()
                         }
                     }
-
                 }
             }
         })
