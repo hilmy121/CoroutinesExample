@@ -3,6 +3,8 @@ package com.example.coroutinesexample
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import androidx.activity.compose.setContent
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -12,11 +14,13 @@ import com.example.coroutinesexample.API.RESTApiObject
 import com.example.coroutinesexample.ViewModel.Adapter.MainAdapter
 import com.example.coroutinesexample.ViewModel.MainViewModel
 import com.example.coroutinesexample.databinding.ActivityMainBinding
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private lateinit var mainViewBinding: ActivityMainBinding
     private lateinit var mainViewModel:MainViewModel
@@ -25,6 +29,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         mainViewBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(mainViewBinding.root)
+        setContent { mainViewModel= hiltViewModel<MainViewModel>() }
         mainViewModel = ViewModelProvider(this)[MainViewModel::class.java]
         setupUI()
 //        runBlockingTest()

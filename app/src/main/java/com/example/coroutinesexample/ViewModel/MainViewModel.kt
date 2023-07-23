@@ -21,7 +21,7 @@ class MainViewModel : ViewModel(){
     internal fun getMemes():LiveData<ImgFlipResponse>{
         viewModelScope.launch (Dispatchers.IO){
             Log.i("Running in ->", Thread.currentThread().name)
-            RESTApiObject().RESTApiService.getMemes().enqueue(object : Callback<ImgFlipResponse>{
+            RESTApiObject.providesRetrofitClient().getMemes().enqueue(object : Callback<ImgFlipResponse>{
                 override fun onResponse(call: Call<ImgFlipResponse>, response: Response<ImgFlipResponse>) {
                     response.body().let { body ->
                         if (body != null) {
@@ -49,7 +49,7 @@ class MainViewModel : ViewModel(){
     internal fun getMemesAwait():LiveData<ImgFlipResponse>{
         viewModelScope.launch (Dispatchers.IO){
             Log.i("Running in ->", Thread.currentThread().name)
-            val response = RESTApiObject().RESTApiService.getAwaitMemes()
+            val response = RESTApiObject.providesRetrofitClient().getAwaitMemes()
             if (response.isSuccessful){
                 response.body().let {
                     body ->
