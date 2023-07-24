@@ -33,8 +33,8 @@ object RESTApiObject : Application() {
     @Provides
     @Singleton
     fun providesRetrofitClient():RESTApiEndpoint{
-        val RESTApiService : RESTApiEndpoint = RetrofitClient.create(RESTApiEndpoint::class.java)
-        return RESTApiService
+        return RetrofitClient.create(RESTApiEndpoint::class.java)
     }
+
 
 }

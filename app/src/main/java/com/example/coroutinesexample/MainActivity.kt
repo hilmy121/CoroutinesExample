@@ -30,7 +30,7 @@ class MainActivity : AppCompatActivity() {
         mainViewBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(mainViewBinding.root)
         setContent { mainViewModel= hiltViewModel<MainViewModel>() }
-        mainViewModel = ViewModelProvider(this)[MainViewModel::class.java]
+//        mainViewModel = ViewModelProvider(this)[MainViewModel::class.java]
         setupUI()
 //        runBlockingTest()
     }

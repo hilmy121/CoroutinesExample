@@ -7,14 +7,20 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.coroutinesexample.API.DataModel.ImgFlipResponse
+import com.example.coroutinesexample.API.Module.Repository
 import com.example.coroutinesexample.API.RESTApiObject
+import dagger.Lazy
 import kotlinx.coroutines.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.await
+import javax.inject.Inject
 
-class MainViewModel : ViewModel(){
+class MainViewModel @Inject constructor(
+    private val repository: Lazy<Repository>
+): ViewModel(){
+    var repo : Repository = repository.get()
 
     private val responseList = MutableLiveData<ImgFlipResponse>()
 
@@ -47,6 +53,9 @@ class MainViewModel : ViewModel(){
     }
 
     internal fun getMemesAwait():LiveData<ImgFlipResponse>{
+
+
+
         viewModelScope.launch (Dispatchers.IO){
             Log.i("Running in ->", Thread.currentThread().name)
             val response = RESTApiObject.providesRetrofitClient().getAwaitMemes()
@@ -76,6 +85,15 @@ class MainViewModel : ViewModel(){
 //            }
 //        }
 
+        return responseList
+    }
+
+    internal fun daggerViewModel():LiveData<ImgFlipResponse>{
+        viewModelScope.launch(Dispatchers.IO) {
+            Log.i("Running in ->", Thread.currentThread().name)
+            val value = async { repo.getMemesCall() }
+            responseList.postValue(value.await())
+        }
         return responseList
     }
 
